@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Ale 🌻</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #fdfbf7;
+            font-family: 'Georgia', serif;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #start-btn {
+            text-align: center;
+            cursor: pointer;
+            font-size: 22px;
+            transition: transform 0.3s;
+            z-index: 10;
+            color: #333;
+        }
+        #start-btn:hover {
+            transform: scale(1.1);
+        }
+        .big-flower {
+            font-size: 70px;
+            animation: spin 8s linear infinite;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        #scene {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        /* Tallo centrado para que se vea bien en celulares */
+        .stem {
+            position: absolute;
+            bottom: 45%; 
+            left: 50%;
+            width: 6px;
+            height: 0;
+            background-color: #2d6a4f;
+            transform: translateX(-50%);
+            transition: height 2s ease-in-out;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        #flowers-container {
+            position: absolute;
+            left: 50%;
+            width: 0;
+            height: 0;
+        }
+        
+        .flower {
+            position: absolute;
+            font-size: 22px;
+            transform: scale(0);
+            animation: popIn 0.6s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        @keyframes popIn {
+            to { transform: scale(1) translate(-50%, -50%); }
+        }
+        
+        /* Texto en la parte inferior para celulares */
+        #text-container {
+            position: absolute;
+            top: 58%;
+            left: 5%;
+            width: 90%;
+            text-align: center;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .line {
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 1s, transform 1s;
+            margin-bottom: 12px;
+        }
+        
+        .line.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .highlight {
+            font-weight: bold;
+            color: #b8860b;
+            font-size: 17px;
+        }
+
+        /* Ajustes para pantallas más grandes (computadoras) */
+        @media (min-width: 768px) {
+            .stem { bottom: 35%; width: 8px; }
+            #text-container { top: 70%; font-size: 18px; line-height: 2; }
+            .highlight { font-size: 22px; }
+            .flower { font-size: 26px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Pantalla de inicio -->
+    <div id="start-btn" onclick="start()">
+        <div class="big-flower">🌻</div>
+        <p>Click Aquí</p>
+    </div>
+
+    <!-- Escena de la animación -->
+    <div id="scene">
+        <div class="stem" id="stem"></div>
+        <div id="flowers-container"></div>
+        <div id="text-container"></div>
+    </div>
+
+    <script>
+        // Mensaje para Ale
+        const messages = [
+            "🌻 <span class='highlight'>FELIZ DÍA DE LAS FLORES AMARILLAS ALE</span> 🌻",
+            "Cada girasol que ves aquí es un latido de mi corazón.",
+            "Así como el sol ilumina los campos, tú iluminas mi vida.",
+            "Que estas flores te recuerden lo especial que eres para mí.",
+            "&mdash; ¡TE AMO!"
+        ];
+
+        function start() {
+            // Ocultar botón y mostrar escena
+            document.getElementById('start-btn').style.display = 'none';
+            const scene = document.getElementById('scene');
+            scene.style.display = 'block';
+
+            // 1. Crecer el tallo (calcula la altura dependiendo de la pantalla)
+            const stem = document.getElementById('stem');
+            const isMobile = window.innerWidth < 768;
+            const stemHeight = isMobile ? window.innerHeight * 0.40 : window.innerHeight * 0.50; 
+            
+            setTimeout(() => {
+                stem.style.height = stemHeight + 'px';
+            }, 100);
+
+            // 2. Aparecer el corazón de flores
+            setTimeout(() => {
+                createHeartFlowers(stemHeight, isMobile);
+            }, 2000); 
+
+            // 3. Mostrar el texto
+            setTimeout(() => {
+                showText();
+            }, 4500); 
+        }
+
+        function createHeartFlowers(stemHeight, isMobile) {
+            const container = document.getElementById('flowers-container');
+            // Ajustar la posición de las flores justo arriba del tallo
+            const bottomPercent = isMobile ? 45 : 35;
+            container.style.bottom = `calc(${bottomPercent}% + ${stemHeight}px - 15px)`; 
+
+            const numFlowers = 150; 
+            
+            for (let i = 0; i < numFlowers; i++) {
+                // Ecuación para formar un corazón
+                const t = Math.random() * Math.PI * 2;
+                // Escala el tamaño del corazón (más pequeño en celulares)
+                const scale = isMobile ? 10 : 15; 
+                const r = Math.sqrt(Math.random()) * scale; 
+
+                const x = r * 16 * Math.pow(Math.sin(t), 3);
+                const y = -r * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+
+                const flower = document.createElement('div');
+                flower.className = 'flower';
+                flower.innerHTML = '🌻';
+                
+                flower.style.left = `${x}px`;
+                flower.style.top = `${y}px`;
+                
+                // Efecto de aparición aleatoria
+                flower.style.animationDelay = `${Math.random() * 2.5}s`;
+                
+                container.appendChild(flower);
+            }
+        }
+
+        function showText() {
+            const container = document.getElementById('text-container');
+            messages.forEach((text, index) => {
+                const p = document.createElement('div');
+                p.className = 'line';
+                p.innerHTML = text;
+                container.appendChild(p);
+
+                setTimeout(() => {
+                    p.classList.add('visible');
+                }, index * 1600); 
+            });
+        }
+    </script>
+</body>
+</html>
